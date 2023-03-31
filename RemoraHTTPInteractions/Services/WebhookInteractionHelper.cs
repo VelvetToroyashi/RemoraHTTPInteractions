@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using OneOf;
 using Remora.Discord.API;
@@ -31,13 +32,12 @@ public class WebhookInteractionHelper
     public WebhookInteractionHelper
     (
         IOptionsMonitor<JsonSerializerOptions> jsonOptions,
-        ResponderDispatchService dispatch, 
-        InMemoryDataService<string, InteractionWebhookResponse> data
+        ResponderDispatchService dispatch
     )
     {
         _jsonOptions = jsonOptions.Get("Discord");
         _dispatch = dispatch;
-        _data = data;
+        _data = InMemoryDataService<string, InteractionWebhookResponse>.Instance;
     }
 
     /// <summary>
@@ -46,6 +46,7 @@ public class WebhookInteractionHelper
     /// <param name="json">The JSON body of the request.</param>
     /// <returns>A result containing the serialized payload for the request, as well as any potential streams for uploaded files.</returns>
     /// <remarks>It is up to the caller to return a form-encoded response if streams are present. See https://discord.dev/reference#uploading-files for more info.</remarks>
+    [ExcludeFromCodeCoverage]
     public Task<Result<(string, Optional<IReadOnlyList<Stream>>)>> HandleInteractionAsync(string json)
     {
         var interaction = JsonSerializer.Deserialize<IInteractionCreate>(json, _jsonOptions);
@@ -59,6 +60,7 @@ public class WebhookInteractionHelper
     /// <param name="stream">The JSON body of the request.</param>
     /// <returns>A result containing the serialized payload for the request, as well as any potential streams for uploaded files.</returns>
     /// <remarks>It is up to the caller to return a form-encoded response if streams are present. See https://discord.dev/reference#uploading-files for more info.</remarks>
+    [ExcludeFromCodeCoverage]
     public async Task<Result<(string, Optional<IReadOnlyList<Stream>>)>> HandleInteractionAsync(Stream stream)
     {
         var interaction = await JsonSerializer.DeserializeAsync<IInteractionCreate>(stream, _jsonOptions);
@@ -66,7 +68,7 @@ public class WebhookInteractionHelper
         return await HandleInteractionAsync(interaction);
     }
     
-    private async Task<Result<(string, Optional<IReadOnlyList<Stream>>)>> HandleInteractionAsync(IInteractionCreate interaction)
+    internal async Task<Result<(string, Optional<IReadOnlyList<Stream>>)>> HandleInteractionAsync(IInteractionCreate interaction)
     {
         // This method assumes a valid interaction has been received.
 
@@ -109,11 +111,18 @@ public class WebhookInteractionHelper
     /// <param name="response">The response to normalize.</param>
     /// <param name="userAttachments">A list of attachments to be normalized.</param>
     /// <returns>The normalized payload.</returns>
-    private static InteractionResponse NormalizeAttachments(InteractionResponse response, IReadOnlyList<OneOf<FileData, IPartialAttachment>> userAttachments)
+    internal static InteractionResponse NormalizeAttachments(InteractionResponse response, IReadOnlyList<OneOf<FileData, IPartialAttachment>> userAttachments)
     {
+        
         if (!response.Data.IsDefined(out var val) || !val.IsT0)
         {
-            return response;
+            //return response;
+            // TODO! This is a workaround for a bug in Remora.Discord
+            // tl;dr Remora requires the payload to have content, however
+            // you're implored not to set the attachments field on the payload 
+            // for...some reason. Because a response consisting only of attachments
+            // is technically valid, data may not be present, and we set a default here.
+            val = new InteractionMessageCallbackData();
         }
 
         var data = val.AsT0;

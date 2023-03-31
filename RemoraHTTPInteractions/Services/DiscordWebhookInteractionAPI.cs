@@ -1,4 +1,5 @@
-﻿using OneOf;
+﻿using System.Diagnostics.CodeAnalysis;
+using OneOf;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Caching.API;
@@ -14,7 +15,7 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
     private readonly IDiscordRestInteractionAPI _underlying;
     private readonly InMemoryDataService<string, InteractionWebhookResponse> _dataService;
     
-    public DiscordWebhookInteractionAPI(IDiscordRestInteractionAPI underlying, InMemoryDataService<string, InteractionWebhookResponse> dataService)
+    public DiscordWebhookInteractionAPI(IDiscordRestInteractionAPI underlying)
     {
         if (underlying is CachingDiscordRestInteractionAPI)
         {
@@ -26,7 +27,7 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         }
         
         _underlying = underlying;
-        _dataService = dataService;
+        _dataService = InMemoryDataService<string, InteractionWebhookResponse>.Instance;
     }
 
     /// <summary>
@@ -66,10 +67,12 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public Task<Result<IMessage>> GetOriginalInteractionResponseAsync(Snowflake applicationID, string interactionToken, CancellationToken ct = default) =>
-    _underlying.GetOriginalInteractionResponseAsync(applicationID, interactionToken, ct);
+        _underlying.GetOriginalInteractionResponseAsync(applicationID, interactionToken, ct);
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public Task<Result<IMessage>> EditOriginalInteractionResponseAsync
     (
         Snowflake applicationID,
@@ -84,10 +87,12 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         => _underlying.EditOriginalInteractionResponseAsync(applicationID, token, content, embeds, allowedMentions, components, attachments, ct);
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public Task<Result> DeleteOriginalInteractionResponseAsync(Snowflake applicationID, string token, CancellationToken ct = default) => 
         _underlying.DeleteOriginalInteractionResponseAsync(applicationID, token, ct);
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public Task<Result<IMessage>> CreateFollowupMessageAsync
     (
         Snowflake applicationID,
@@ -104,10 +109,12 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         => _underlying.CreateFollowupMessageAsync(applicationID, token, content, isTTS, embeds, allowedMentions, components, attachments, flags, ct);
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public Task<Result<IMessage>> GetFollowupMessageAsync(Snowflake applicationID, string token, Snowflake messageID, CancellationToken ct = default) => 
         _underlying.GetFollowupMessageAsync(applicationID, token, messageID, ct);
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public Task<Result<IMessage>> EditFollowupMessageAsync
     (
         Snowflake applicationID,
@@ -123,6 +130,7 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         => _underlying.EditFollowupMessageAsync(applicationID, token, messageID, content, embeds, allowedMentions, components, attachments, ct);
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public Task<Result> DeleteFollowupMessageAsync(Snowflake applicationID, string token, Snowflake messageID, CancellationToken ct = default) => 
         _underlying.DeleteFollowupMessageAsync(applicationID, token, messageID, ct);
 }

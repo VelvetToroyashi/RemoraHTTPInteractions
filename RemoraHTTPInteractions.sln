@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoraHTTPInteractions", "RemoraHTTPInteractions\RemoraHTTPInteractions.csproj", "{F4B28E44-DF5A-464C-BE44-6514FE7C3654}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoraHTTPInteractions.Tests", "RemoraHTTPInteractions.Tests\RemoraHTTPInteractions.Tests.csproj", "{27C601EA-EEB1-4881-B1C6-42CCFD2681FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{F4B28E44-DF5A-464C-BE44-6514FE7C3654}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4B28E44-DF5A-464C-BE44-6514FE7C3654}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4B28E44-DF5A-464C-BE44-6514FE7C3654}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27C601EA-EEB1-4881-B1C6-42CCFD2681FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27C601EA-EEB1-4881-B1C6-42CCFD2681FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27C601EA-EEB1-4881-B1C6-42CCFD2681FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27C601EA-EEB1-4881-B1C6-42CCFD2681FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

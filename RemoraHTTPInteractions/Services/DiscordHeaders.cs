@@ -1,7 +1,8 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using Chaos.NaCl;
 using Microsoft.AspNetCore.Http;
-using NSec.Cryptography;
+using Microsoft.Extensions.Primitives;
 
 namespace RemoraHTTPInteractions.Services;
 
@@ -10,6 +11,10 @@ namespace RemoraHTTPInteractions.Services;
 /// </summary>
 public static class DiscordHeaders
 {
+    private const string
+    TimestampHeaderName = "X-Signature-Timestamp",
+    SignatureHeaderName = "X-Signature-Ed25519";
+    
     /// <summary>
     /// Extracts the requisite headers from a request (X-Signature-Timestamp and X-Signature-Ed25519).
     /// </summary>
@@ -17,15 +22,15 @@ public static class DiscordHeaders
     /// <param name="Timestamp">The extracted timestamp.</param>
     /// <param name="Key">The extracted public key.</param>
     /// <returns>True if the headers were successfully extracted, otherwise false.</returns>
-    public static bool ExtractHeaders(IHeaderDictionary headers, out string? Timestamp, out string? Key)
+    public static bool TryExtractHeaders(IDictionary<string, StringValues> headers, out string? Timestamp, out string? Key)
     {
         Timestamp = null;
         Key = null;
-        if (headers.TryGetValue("X-Signature-Timestamp", out var timestamp))
+        if (headers.TryGetValue(TimestampHeaderName, out var timestamp))
         {
             Timestamp = timestamp;
         }
-        if (headers.TryGetValue("X-Signature-Ed25519", out var key))
+        if (headers.TryGetValue(SignatureHeaderName, out var key))
         {
             Key = key;
         }
@@ -43,9 +48,10 @@ public static class DiscordHeaders
     public static bool VerifySignature(string body, string timestamp, string signingKey, string publicKey)
     {
         var bytes = Encoding.UTF8.GetBytes(timestamp + body);
-        var keyBytes = Encoding.UTF8.GetBytes(publicKey);
-        var signBytes = Encoding.UTF8.GetBytes(signingKey);
-        return Ed25519.Ed25519.Verify(PublicKey.Import(SignatureAlgorithm.Ed25519, keyBytes, KeyBlobFormat.NSecPublicKey), bytes, signBytes);
+        var keyBytes = Convert.FromHexString(publicKey);
+        var signBytes = Convert.FromHexString(signingKey);
+        
+        return Ed25519.Verify(signBytes, bytes, keyBytes);
     }
     
 }
