@@ -6,7 +6,6 @@ using Remora.Discord.API.Gateway.Events;
 using Remora.Discord.API.Objects;
 using Remora.Discord.Gateway.Extensions;
 using Remora.Discord.Gateway.Responders;
-using Remora.Discord.Interactivity.Extensions;
 using Remora.Results;
 using RemoraHTTPInteractions.Extensions;
 using RemoraHTTPInteractions.Services;
@@ -26,7 +25,6 @@ public class WebhookInteractionHelperTests
         
         var services = new ServiceCollection()
         .AddDiscordGateway(_ => "dummy")
-        .AddInteractivity()
         .AddResponder<TCSResponder>()
         .AddSingleton(tcs)
         .AddHTTPInteractionAPIs();
@@ -51,7 +49,6 @@ public class WebhookInteractionHelperTests
     {
         var services = new ServiceCollection()
                        .AddDiscordGateway(_ => "dummy")
-                       .AddInteractivity()
                        .AddResponder<AttachmentlessResponder>()
                        .AddHTTPInteractionAPIs();
         
@@ -78,7 +75,6 @@ public class WebhookInteractionHelperTests
     {
         var services = new ServiceCollection()
                        .AddDiscordGateway(_ => "dummy")
-                       .AddInteractivity()
                        .AddResponder<SingleAttachmentResponder>()
                        .AddHTTPInteractionAPIs();
         

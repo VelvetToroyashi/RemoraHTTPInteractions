@@ -3,7 +3,6 @@ using OneOf;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Caching.API;
-using Remora.Discord.Interactivity.Services;
 using Remora.Rest.Core;
 using Remora.Results;
 using RemoraHTTPInteractions.Extensions;
@@ -13,7 +12,7 @@ namespace RemoraHTTPInteractions.Services;
 public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
 {
     private readonly IDiscordRestInteractionAPI _underlying;
-    private readonly InMemoryDataService<string, InteractionWebhookResponse> _dataService;
+    private readonly InMemoryDataStore<string, InteractionWebhookResponse> _dataService;
     
     public DiscordWebhookInteractionAPI(IDiscordRestInteractionAPI underlying)
     {
@@ -22,12 +21,12 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
             throw new InvalidOperationException
             (
                 $"The call to `.{nameof(ServiceCollectionExtensions.AddHTTPInteractionAPIs)}` " +
-                $"should be called before `.{nameof(Remora.Discord.Caching.Extensions.ServiceCollectionExtensions.AddDiscordCaching)}`"
+                $"should be called before `.AddDiscordCaching()`"
             );
         }
         
         _underlying = underlying;
-        _dataService = InMemoryDataService<string, InteractionWebhookResponse>.Instance;
+        _dataService = InMemoryDataStore<string, InteractionWebhookResponse>.Instance;
     }
 
     /// <summary>
@@ -43,7 +42,7 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         CancellationToken ct = default
     )
     {
-        var interactionResult = await _dataService.LeaseDataAsync(interactionToken);
+        var interactionResult = await _dataService.TryGetLeaseAsync(interactionToken);
         
         if (!interactionResult.IsSuccess)
         {

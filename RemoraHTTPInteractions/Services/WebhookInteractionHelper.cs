@@ -8,7 +8,6 @@ using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.API.Objects;
 using Remora.Discord.Gateway.Services;
-using Remora.Discord.Interactivity.Services;
 using Remora.Rest.Core;
 using Remora.Results;
 
@@ -21,7 +20,7 @@ public class WebhookInteractionHelper
 {
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResponderDispatchService _dispatch;
-    private readonly InMemoryDataService<string, InteractionWebhookResponse> _data;
+    private readonly InMemoryDataStore<string, InteractionWebhookResponse> _data;
     
     /// <summary>
     /// Creates a new instance of the <see cref="WebhookInteractionHelper"/> class.
@@ -37,7 +36,7 @@ public class WebhookInteractionHelper
     {
         _jsonOptions = jsonOptions.Get("Discord");
         _dispatch = dispatch;
-        _data = InMemoryDataService<string, InteractionWebhookResponse>.Instance;
+        _data = InMemoryDataStore<string, InteractionWebhookResponse>.Instance;
     }
 
     /// <summary>
@@ -73,13 +72,13 @@ public class WebhookInteractionHelper
         // This method assumes a valid interaction has been received.
 
         var data = new InteractionWebhookResponse(new());
-        _data.TryAddData(interaction.Token, data);
+        _data.TryAddValue(interaction.Token, data);
         
         _dispatch.DispatchAsync(new Payload<IInteractionCreate>(interaction));
 
         var response = await data.ResponseTCS.Task;
 
-        _data.TryRemoveData(interaction.Token);
+        await _data.DeleteAsync(interaction.Token);
 
         if (!response.Attachments.IsDefined(out var attachments))
         {

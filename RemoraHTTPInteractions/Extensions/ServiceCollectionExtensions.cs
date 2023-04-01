@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Remora.Discord.API.Abstractions.Rest;
-using Remora.Discord.Caching.Extensions;
-using Remora.Discord.Gateway.Extensions;
-using Remora.Discord.Gateway.Responders;
 using Remora.Discord.Rest.Extensions;
 using RemoraHTTPInteractions.Services;
 

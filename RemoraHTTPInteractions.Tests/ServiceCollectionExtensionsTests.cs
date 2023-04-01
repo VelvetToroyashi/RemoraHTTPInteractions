@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Gateway.Extensions;
-using Remora.Discord.Interactivity.Extensions;
 using Remora.Discord.Rest;
 using Remora.Discord.Rest.Extensions;
 using RemoraHTTPInteractions.Extensions;
@@ -16,7 +15,6 @@ public class ServiceCollectionExtensionsTests
     {
         var services = new ServiceCollection();
         
-        services.AddInteractivity();
         services.AddDiscordGateway(_ => "dummy");
         services.AddHTTPInteractionAPIs();
 

@@ -3,11 +3,10 @@ using Remora.Discord.API;
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.API.Objects;
-using Remora.Discord.Interactivity.Extensions;
-using Remora.Discord.Interactivity.Services;
 using Remora.Discord.Rest;
 using Remora.Discord.Rest.Extensions;
 using RemoraHTTPInteractions.Extensions;
+using RemoraHTTPInteractions.Services;
 
 namespace RemoraHTTPInteractions.Tests;
 
@@ -20,11 +19,10 @@ public class DiscordWebhookInteractionsAPITests
     public async Task APISuccessfullySetsReponse()
     {
         var res = new InteractionWebhookResponse(new());
-        InMemoryDataService<string, InteractionWebhookResponse>.Instance.TryAddData("123", res);
+        InMemoryDataStore<string, InteractionWebhookResponse>.Instance.TryAddValue("123", res);
 
         var services = new ServiceCollection()
                        .AddDiscordRest(_ => ("dummy", DiscordTokenType.Bot))
-                       .AddInteractivity()
                        .AddHTTPInteractionAPIs();
         
         var provider = services.BuildServiceProvider();
@@ -48,7 +46,6 @@ public class DiscordWebhookInteractionsAPITests
     {
         var services = new ServiceCollection()
                        .AddDiscordRest(_ => ("dummy", DiscordTokenType.Bot))
-                       .AddInteractivity()
                        .AddHTTPInteractionAPIs();
         
         var provider = services.BuildServiceProvider();
