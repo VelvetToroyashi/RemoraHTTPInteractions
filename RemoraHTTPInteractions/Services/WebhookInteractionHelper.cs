@@ -46,28 +46,14 @@ public class WebhookInteractionHelper
     /// <returns>A result containing the serialized payload for the request, as well as any potential streams for uploaded files.</returns>
     /// <remarks>It is up to the caller to return a form-encoded response if streams are present. See https://discord.dev/reference#uploading-files for more info.</remarks>
     [ExcludeFromCodeCoverage]
-    public Task<Result<(string, Optional<IReadOnlyList<Stream>>)>> HandleInteractionAsync(string json)
+    public Task<Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>> HandleInteractionAsync(string json)
     {
         var interaction = JsonSerializer.Deserialize<IInteractionCreate>(json, _jsonOptions);
 
         return HandleInteractionAsync(interaction);
     }
-
-    /// <summary>
-    /// Handles an incoming request from Discord. This method assumes the given payload is valid. (e.g. <see cref="DiscordHeaders.VerifySignature"/> returns true).
-    /// </summary>
-    /// <param name="stream">The JSON body of the request.</param>
-    /// <returns>A result containing the serialized payload for the request, as well as any potential streams for uploaded files.</returns>
-    /// <remarks>It is up to the caller to return a form-encoded response if streams are present. See https://discord.dev/reference#uploading-files for more info.</remarks>
-    [ExcludeFromCodeCoverage]
-    public async Task<Result<(string, Optional<IReadOnlyList<Stream>>)>> HandleInteractionAsync(Stream stream)
-    {
-        var interaction = await JsonSerializer.DeserializeAsync<IInteractionCreate>(stream, _jsonOptions);
-        
-        return await HandleInteractionAsync(interaction);
-    }
     
-    internal async Task<Result<(string, Optional<IReadOnlyList<Stream>>)>> HandleInteractionAsync(IInteractionCreate interaction)
+    internal async Task<Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>> HandleInteractionAsync(IInteractionCreate interaction)
     {
         // This method assumes a valid interaction has been received.
 
@@ -83,11 +69,11 @@ public class WebhookInteractionHelper
         if (!response.Attachments.IsDefined(out var attachments))
         {
             var json = JsonSerializer.Serialize(response.Response, _jsonOptions);
-            return Result<(string, Optional<IReadOnlyList<Stream>>)>.FromSuccess((json, default));
+            return Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>.FromSuccess((json, default));
         }
         else
         {
-            var streams = new List<Stream>();
+            var streams = new Dictionary<string, Stream>();
 
             foreach (var attachment in attachments)
             {
@@ -96,11 +82,11 @@ public class WebhookInteractionHelper
                     continue;
                 }
 
-                streams.Add(attachment.AsT0.Content);
+                streams.Add(attachment.AsT0.Name, attachment.AsT0.Content);
             }
 
             var json = JsonSerializer.Serialize(NormalizeAttachments((InteractionResponse)response.Response, attachments), _jsonOptions);
-            return Result<(string, Optional<IReadOnlyList<Stream>>)>.FromSuccess((json, new(streams.ToArray())));
+            return Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>.FromSuccess((json, new(streams)));
         }
     }
     
