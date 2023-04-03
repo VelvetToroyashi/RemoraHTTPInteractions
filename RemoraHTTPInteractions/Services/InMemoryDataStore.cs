@@ -115,6 +115,8 @@ public class DataLease<TKey, TValue> : IAsyncDisposable where TKey : notnull
 
     public async ValueTask DisposeAsync()
     {
+        _isExpired = true;
+        
         if (!_isMarkedForDeletion)
         {
             _store.Update(_key, _value);

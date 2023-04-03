@@ -4,11 +4,17 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>VTP.Remora.Discord.HTTPInteractions</PackageId>
+        <Authors>VelvetThePanda</Authors>
+        <Description>Adds support for receiving interactions over HTTP to Remora.Discord</Description>
+        <PackageProjectUrl>https://github.com/VelvetThePanda/RemoraHTTPInteractions</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/VelvetThePanda/RemoraHTTPInteractions</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Chaos.NaCl.Standard" Version="1.0.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
+      <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
       <PackageReference Include="Remora.Discord.Caching" Version="35.0.0" />
       <PackageReference Include="Remora.Discord.Rest" Version="47.0.0" />
     </ItemGroup>
