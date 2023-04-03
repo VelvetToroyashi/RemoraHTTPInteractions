@@ -64,8 +64,6 @@ public class WebhookInteractionHelper
 
         var response = await data.ResponseTCS.Task;
 
-        await _data.DeleteAsync(interaction.Token);
-
         if (!response.Attachments.IsDefined(out var attachments))
         {
             var json = JsonSerializer.Serialize(response.Response, _jsonOptions);

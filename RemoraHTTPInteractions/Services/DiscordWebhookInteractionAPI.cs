@@ -53,11 +53,12 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         
         await using var interaction = interactionResult.Entity;
         
-        if (interaction.Data.ResponseTCS.Task.IsCompleted)
-        {
-            return Result.FromSuccess(); // Too late, we've already sent a response
-        }
-        
+        // Ensure that the interaction is deleted after the request is complete.
+        // It's important that this is done here becuase asynchronous disposal doesn't 
+        // guarantee that the object will be disposed of before the caller that waits on the TCS
+        // is resumed. This caused a concurrency issue in 1.0.1
+        interaction.MarkForDeletion(); 
+
         interaction.Data.ResponseTCS.SetResult(new(response, attachments));
         
         // TODO: if (interactionID.Timestamp < (DateTime.UtcNow.AddSeconds(-3))) return Result.FromError(); 
