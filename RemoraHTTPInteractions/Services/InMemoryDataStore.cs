@@ -40,7 +40,7 @@ public class InMemoryDataStore<TKey, TValue> where TKey : notnull
         
         value.Lock.Dispose();
         
-        return false;
+        return true;
     }
 
     /// <summary>
