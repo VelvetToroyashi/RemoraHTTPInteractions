@@ -48,7 +48,7 @@ public class WebhookInteractionHelper
     [ExcludeFromCodeCoverage]
     public Task<Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>> HandleInteractionAsync(string json)
     {
-        var interaction = JsonSerializer.Deserialize<IInteractionCreate>(json, _jsonOptions);
+        var interaction = JsonSerializer.Deserialize<IInteractionCreate>(json, _jsonOptions)!;
 
         return HandleInteractionAsync(interaction);
     }
@@ -60,7 +60,7 @@ public class WebhookInteractionHelper
         var data = new InteractionWebhookResponse(new());
         _data.TryAddValue(interaction.Token, data);
         
-        _dispatch.DispatchAsync(new Payload<IInteractionCreate>(interaction));
+        await _dispatch.DispatchAsync(new Payload<IInteractionCreate>(interaction));
 
         var response = await data.ResponseTCS.Task;
 
