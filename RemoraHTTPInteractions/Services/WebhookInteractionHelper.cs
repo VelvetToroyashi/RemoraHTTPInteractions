@@ -19,7 +19,7 @@ namespace RemoraHTTPInteractions.Services;
 public class WebhookInteractionHelper
 {
     private readonly JsonSerializerOptions _jsonOptions;
-    private readonly ResponderDispatchService _dispatch;
+    private readonly IResponderDispatchService _dispatch;
     private readonly InMemoryDataStore<string, InteractionWebhookResponse> _data;
     
     /// <summary>
@@ -31,7 +31,7 @@ public class WebhookInteractionHelper
     public WebhookInteractionHelper
     (
         IOptionsMonitor<JsonSerializerOptions> jsonOptions,
-        ResponderDispatchService dispatch
+        IResponderDispatchService dispatch
     )
     {
         _jsonOptions = jsonOptions.Get("Discord");
@@ -71,17 +71,9 @@ public class WebhookInteractionHelper
         }
         else
         {
-            var streams = new Dictionary<string, Stream>();
-
-            foreach (var attachment in attachments)
-            {
-                if (!attachment.IsT0)
-                {
-                    continue;
-                }
-
-                streams.Add(attachment.AsT0.Name, attachment.AsT0.Content);
-            }
+            var streams = attachments
+                          .Where(attachment => attachment.IsT0)
+                          .ToDictionary(attachment => attachment.AsT0.Name, attachment => attachment.AsT0.Content);
 
             var json = JsonSerializer.Serialize(NormalizeAttachments((InteractionResponse)response.Response, attachments), _jsonOptions);
             return Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>.FromSuccess((json, new(streams)));
