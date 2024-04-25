@@ -17,7 +17,7 @@ public static class ServiceCollectionExtensions
     /// <returns>The service collection to chain calls with.</returns>
     /// <remarks>This method MUST be called before <see cref="Remora.Discord.Caching.Extensions.ServiceCollectionExtensions.AddDiscordCaching"/>
     /// as the added API intercepts calls to CreateInteractionResponseAsync. Failing to do so may lead to undefined behavior.</remarks>
-    public static IServiceCollection AddHTTPInteractionAPIs(this IServiceCollection services)
+    public static IServiceCollection AddHttpInteractions(this IServiceCollection services)
     {
         services.Decorate<IDiscordRestInteractionAPI, DiscordWebhookInteractionAPI>();
         services.AddSingleton<WebhookInteractionHelper>();

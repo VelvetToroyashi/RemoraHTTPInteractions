@@ -20,7 +20,7 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         {
             throw new InvalidOperationException
             (
-                $"The call to `.{nameof(ServiceCollectionExtensions.AddHTTPInteractionAPIs)}` " +
+                $"The call to `.{nameof(ServiceCollectionExtensions.AddHttpInteractions)}` " +
                 $"should be called before `.AddDiscordCaching()`"
             );
         }

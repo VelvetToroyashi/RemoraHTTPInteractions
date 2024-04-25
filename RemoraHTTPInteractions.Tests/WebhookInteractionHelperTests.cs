@@ -27,7 +27,7 @@ public class WebhookInteractionHelperTests
         .AddDiscordGateway(_ => "dummy")
         .AddResponder<TCSResponder>()
         .AddSingleton(tcs)
-        .AddHTTPInteractionAPIs();
+        .AddHttpInteractions();
         
         var provider = services.BuildServiceProvider();
 
@@ -50,7 +50,7 @@ public class WebhookInteractionHelperTests
         var services = new ServiceCollection()
                        .AddDiscordGateway(_ => "dummy")
                        .AddResponder<AttachmentlessResponder>()
-                       .AddHTTPInteractionAPIs();
+                       .AddHttpInteractions();
         
         var provider = services.BuildServiceProvider();
 
@@ -76,7 +76,7 @@ public class WebhookInteractionHelperTests
         var services = new ServiceCollection()
                        .AddDiscordGateway(_ => "dummy")
                        .AddResponder<SingleAttachmentResponder>()
-                       .AddHTTPInteractionAPIs();
+                       .AddHttpInteractions();
         
         var provider = services.BuildServiceProvider();
 

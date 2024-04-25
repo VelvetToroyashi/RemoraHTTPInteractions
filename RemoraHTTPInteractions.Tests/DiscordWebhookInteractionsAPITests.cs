@@ -23,7 +23,7 @@ public class DiscordWebhookInteractionsAPITests
 
         var services = new ServiceCollection()
                        .AddDiscordRest(_ => ("dummy", DiscordTokenType.Bot))
-                       .AddHTTPInteractionAPIs();
+                       .AddHttpInteractions();
         
         var provider = services.BuildServiceProvider();
         
@@ -46,7 +46,7 @@ public class DiscordWebhookInteractionsAPITests
     {
         var services = new ServiceCollection()
                        .AddDiscordRest(_ => ("dummy", DiscordTokenType.Bot))
-                       .AddHTTPInteractionAPIs();
+                       .AddHttpInteractions();
         
         var provider = services.BuildServiceProvider();
         

@@ -16,7 +16,7 @@ public class ServiceCollectionExtensionsTests
         var services = new ServiceCollection();
         
         services.AddDiscordGateway(_ => "dummy");
-        services.AddHTTPInteractionAPIs();
+        services.AddHttpInteractions();
 
         var serviceProvider = services.BuildServiceProvider();
 
