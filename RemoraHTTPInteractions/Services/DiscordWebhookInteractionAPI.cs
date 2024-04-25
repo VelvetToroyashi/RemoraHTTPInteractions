@@ -38,7 +38,7 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         Snowflake interactionID,
         string interactionToken,
         IInteractionResponse response,
-        Optional<IReadOnlyList<OneOf<FileData, IPartialAttachment>>> attachments = new Optional<IReadOnlyList<OneOf<FileData, IPartialAttachment>>>(),
+        Optional<IReadOnlyList<OneOf<FileData, IPartialAttachment>>> attachments = default,
         CancellationToken ct = default
     )
     {

@@ -13,13 +13,14 @@ public class InMemoryDataStore<TKey, TValue> where TKey : notnull
     
     public async Task<Result<DataLease<TKey, TValue>>> TryGetLeaseAsync(TKey key, CancellationToken ct = default)
     {
-        if (_data.TryGetValue(key, out var value))
+        if (!_data.TryGetValue(key, out var value))
         {
-            await value.Lock.WaitAsync(ct);
-            return new DataLease<TKey, TValue>(this, value.Lock, key, value.Value);
+            return new NotFoundError();
         }
-        
-        return new NotFoundError();
+
+        await value.Lock.WaitAsync(ct);
+        return new DataLease<TKey, TValue>(this, value.Lock, key, value.Value);
+
     }
     
     public async ValueTask<bool> DeleteAsync(TKey key)
