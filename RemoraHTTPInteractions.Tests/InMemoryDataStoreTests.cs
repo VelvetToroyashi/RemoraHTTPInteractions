@@ -11,7 +11,7 @@ public class InMemoryDataStoreTests
         
         var insert = dataStore.TryAddValue("key", "value");
         
-        Assert.IsTrue(insert);
+        Assert.That(insert, Is.True);
     }
     
     [Test]
@@ -23,8 +23,8 @@ public class InMemoryDataStoreTests
         
         var value = await dataStore.TryGetLeaseAsync("test_key");
         
-        Assert.IsTrue(value.IsSuccess);
-        Assert.AreEqual("value", value.Entity.Data);
+        Assert.That(value.IsSuccess);
+        Assert.That(value.Entity.Data, Is.EqualTo("value"));
     }
     
     [Test]
@@ -34,7 +34,7 @@ public class InMemoryDataStoreTests
         
         var value = await dataStore.TryGetLeaseAsync("bogus");
         
-        Assert.IsFalse(value.IsSuccess);
+        Assert.That(value.IsSuccess, Is.False);
     }
 
     [Test]
@@ -46,11 +46,11 @@ public class InMemoryDataStoreTests
         
         var value = await dataStore.TryGetLeaseAsync("key2");
 
-        Assert.IsTrue(value.IsSuccess);
+        Assert.That(value.IsSuccess);
         
         var value2 = dataStore.TryGetLeaseAsync("key2");
         
-        Assert.IsFalse(value2.IsCompleted); // Grabbing a lease on a key that is already leased waits on it to be released
+        Assert.That(value2.IsCompleted, Is.False); // Grabbing a lease on a key that is already leased waits on it to be released
     }
 
     [Test]
@@ -64,7 +64,7 @@ public class InMemoryDataStoreTests
         
         var value2 = await dataStore.TryGetLeaseAsync("test_key_3", new CancellationTokenSource(100).Token);
         
-        Assert.IsTrue(value2.IsSuccess);
+        Assert.That(value2.IsSuccess);
     }
 
     [Test]
@@ -80,7 +80,7 @@ public class InMemoryDataStoreTests
         
         var result = await dataStore.TryGetLeaseAsync("test_key_4");
         
-        Assert.IsFalse(result.IsSuccess);
+        Assert.That(result.IsSuccess, Is.False);
     }
 
     [Test]
@@ -96,7 +96,7 @@ public class InMemoryDataStoreTests
         
         var result = await dataStore.TryGetLeaseAsync("test_key_5");
         
-        Assert.IsTrue(result.IsDefined(out var newData));
-        Assert.AreEqual("new_value", newData.Data);
+        Assert.That(result.IsDefined(out var newData));
+        Assert.That(newData?.Data, Is.EqualTo("new_value"));
     }
 }

@@ -36,9 +36,9 @@ public class DiscordWebhookInteractionsAPITests
             new InteractionResponse(InteractionCallbackType.DeferredUpdateMessage)
         );
         
-        Assert.True(response.IsSuccess);
-        Assert.True(res.ResponseTCS.Task.IsCompleted);
-        Assert.AreEqual(res.ResponseTCS.Task.Result.Response.Type, InteractionCallbackType.DeferredUpdateMessage);
+        Assert.That(response.IsSuccess);
+        Assert.That(res.ResponseTCS.Task.IsCompleted);
+        Assert.That(res.ResponseTCS.Task.Result.Response.Type, Is.EqualTo(InteractionCallbackType.DeferredUpdateMessage));
     }
     
     [Test]
@@ -59,6 +59,6 @@ public class DiscordWebhookInteractionsAPITests
             new InteractionResponse(InteractionCallbackType.DeferredUpdateMessage)
         );
         
-        Assert.False(response.IsSuccess);
+        Assert.That(response.IsSuccess, Is.False);
     }
 }

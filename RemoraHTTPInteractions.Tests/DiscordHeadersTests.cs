@@ -31,7 +31,7 @@ public class DiscordHeadersTests
     [Test]
     public void VerifiesPublicKeyCorrectly()
     {
-        Assert.True(DiscordHeaders.VerifySignature(Body, Timestamp, Convert.ToHexString(Signature), Convert.ToHexString(PublicKey)));
+        Assert.That(DiscordHeaders.VerifySignature(Body, Timestamp, Convert.ToHexString(Signature), Convert.ToHexString(PublicKey)), Is.True);
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class DiscordHeadersTests
     [Test]
     public void ExtractsHeadersCorrectly()
     {
-        var headers = new Dictionary<string, StringValues>()
+        var headers = new Dictionary<string, StringValues>
         {
             { "X-Signature-Timestamp", Timestamp },
             { "X-Signature-Ed25519", Convert.ToHexString(Signature) }
@@ -48,9 +48,9 @@ public class DiscordHeadersTests
         
         var exists = DiscordHeaders.TryExtractHeaders(headers, out var timestamp, out var signature);
         
-        Assert.True(exists);
+        Assert.That(exists);
         
-        Assert.AreEqual(Timestamp, timestamp);
-        Assert.AreEqual(Convert.ToHexString(Signature), signature);
+        Assert.That(timestamp, Is.EqualTo(Timestamp));
+        Assert.That(signature, Is.EqualTo(Convert.ToHexString(Signature)));
     }
 }

@@ -22,11 +22,11 @@ public class ServiceCollectionExtensionsTests
 
         var interactionAPI = serviceProvider.GetService<IDiscordRestInteractionAPI>();
         
-        Assert.NotNull(interactionAPI);
-        Assert.IsInstanceOf<DiscordWebhookInteractionAPI>(interactionAPI);
+        Assert.That(interactionAPI, Is.Not.Null);
+        Assert.That(interactionAPI, Is.InstanceOf<DiscordWebhookInteractionAPI>());
 
-        var interactionHelper = serviceProvider.GetRequiredService<WebhookInteractionHelper>();
-        Assert.NotNull(interactionHelper);
-        Assert.IsInstanceOf<WebhookInteractionHelper>(interactionHelper);
+        var interactionHelper = serviceProvider.GetService<WebhookInteractionHelper>();
+        Assert.That(interactionHelper, Is.Not.Null);
+        Assert.That(interactionHelper, Is.InstanceOf<WebhookInteractionHelper>());
     }
 }

@@ -37,8 +37,8 @@ public class WebhookInteractionHelperTests
         
         var res = await interactionService.HandleInteractionAsync(interaction);
         
-        Assert.IsTrue(res.IsSuccess);
-        Assert.IsTrue(tcs.Task.IsCompleted);
+        Assert.That(res.IsSuccess);
+        Assert.That(tcs.Task.IsCompleted);
     }
 
     /// <summary>
@@ -60,11 +60,11 @@ public class WebhookInteractionHelperTests
         
         var res = await interactionService.HandleInteractionAsync(interaction);
         
-        Assert.IsTrue(res.IsSuccess);
+        Assert.That(res.IsSuccess);
 
         const string expected = """{"type":1}""";
-        Assert.AreEqual(expected, res.Entity.Item1);
-        Assert.IsFalse(res.Entity.Item2.HasValue);
+        Assert.That(res.Entity.Item1, Is.EqualTo(expected));
+        Assert.That(res.Entity.Item2.HasValue, Is.False);
     }
 
     /// <summary>
@@ -86,65 +86,47 @@ public class WebhookInteractionHelperTests
         
         var res = await interactionService.HandleInteractionAsync(interaction);
         
-        Assert.IsTrue(res.IsSuccess);
+        Assert.That(res.IsSuccess);
         
         const string expected = """{"type":1,"data":{"attachments":[{"id":"0","filename":"owo.png","description":"No description set."}]}}""";
-        Assert.AreEqual(expected, res.Entity.Item1);
-        Assert.True(res.Entity.Item2.HasValue);
+        Assert.That(res.Entity.Item1, Is.EqualTo(expected));
+        Assert.That(res.Entity.Item2.HasValue, Is.True);
     }
 }
 
-public class TCSResponder : IResponder<IInteractionCreate>
+public class TCSResponder(TaskCompletionSource tcs, IDiscordRestInteractionAPI interactions)
+: IResponder<IInteractionCreate>
 {
-    private readonly TaskCompletionSource _tcs;
-    private readonly IDiscordRestInteractionAPI _interactions;
-    
-    public TCSResponder(TaskCompletionSource tcs, IDiscordRestInteractionAPI interactions)
-    {
-        _tcs = tcs;
-        _interactions = interactions;
-    }
 
     public Task<Result> RespondAsync(IInteractionCreate gatewayEvent, CancellationToken ct = default)
     {
-        _tcs.SetResult();
-        return _interactions.CreateInteractionResponseAsync(gatewayEvent.ID, gatewayEvent.Token, new InteractionResponse(InteractionCallbackType.Pong), ct: ct);
+        tcs.SetResult();
+        return interactions.CreateInteractionResponseAsync(gatewayEvent.ID, gatewayEvent.Token, new InteractionResponse(InteractionCallbackType.Pong), ct: ct);
     }
 }
 
-public class AttachmentlessResponder : IResponder<IInteractionCreate>
+public class AttachmentlessResponder(IDiscordRestInteractionAPI interactions) : IResponder<IInteractionCreate>
 {
-    private readonly IDiscordRestInteractionAPI _interactions;
-    
-    public AttachmentlessResponder(IDiscordRestInteractionAPI interactions)
-    {
-        _interactions = interactions;
-    }
 
     public Task<Result> RespondAsync(IInteractionCreate gatewayEvent, CancellationToken ct = default)
     {
-        return _interactions.CreateInteractionResponseAsync(gatewayEvent.ID, gatewayEvent.Token, new InteractionResponse(InteractionCallbackType.Pong), ct: ct);
+        return interactions.CreateInteractionResponseAsync(gatewayEvent.ID, gatewayEvent.Token, new InteractionResponse(InteractionCallbackType.Pong), ct: ct);
     }
 }
 
-public class SingleAttachmentResponder : IResponder<IInteractionCreate>
+public class SingleAttachmentResponder(IDiscordRestInteractionAPI interactions) : IResponder<IInteractionCreate>
 {
-    private readonly IDiscordRestInteractionAPI _interactions;
-
-    public SingleAttachmentResponder(IDiscordRestInteractionAPI interactions)
-    {
-        _interactions = interactions;
-    }
 
     public Task<Result> RespondAsync(IInteractionCreate gatewayEvent, CancellationToken ct = default)
     {
         // This completes synchronously. [Not awaiting] is fine.
-        _interactions.CreateInteractionResponseAsync
+        interactions.CreateInteractionResponseAsync
         (
             gatewayEvent.ID,
             gatewayEvent.Token,
             new InteractionResponse(InteractionCallbackType.Pong),
-            new[] { OneOf<FileData, IPartialAttachment>.FromT0(new("owo.png", Stream.Null)) }
+            new[] { OneOf<FileData, IPartialAttachment>.FromT0(new("owo.png", Stream.Null)) },
+            ct
         );
         
         return Task.FromResult(Result.FromSuccess());
