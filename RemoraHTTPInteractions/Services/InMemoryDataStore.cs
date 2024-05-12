@@ -15,7 +15,7 @@ public class InMemoryDataStore<TKey, TValue> where TKey : notnull
     {
         if (!_data.TryGetValue(key, out var value))
         {
-            return new NotFoundError();
+            return new NotFoundError("The key was not found in the data store.");
         }
 
         await value.Lock.WaitAsync(ct);
