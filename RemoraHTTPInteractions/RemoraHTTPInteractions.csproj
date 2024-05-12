@@ -10,7 +10,7 @@
         <Description>Adds support for receiving interactions over HTTP to Remora.Discord</Description>
         <PackageProjectUrl>https://github.com/VelvetToroyashi/RemoraHTTPInteractions</PackageProjectUrl>
         <RepositoryUrl>https://github.com/VelvetToroyashi/RemoraHTTPInteractions</RepositoryUrl>
-        <Version>1.0.4</Version>
+        <Version>1.0.5</Version>
     </PropertyGroup>
 
     <ItemGroup>
