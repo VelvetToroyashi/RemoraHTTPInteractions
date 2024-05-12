@@ -93,10 +93,9 @@ public class DataLease<TKey, TValue> : IAsyncDisposable where TKey : notnull
         get => _isExpired ? throw new ObjectDisposedException(nameof(DataLease<TKey, TValue>)) : _value;
         set
         {
-            if (_isExpired)
-                throw new ObjectDisposedException(nameof(DataLease<TKey, TValue>));
-            
             ArgumentNullException.ThrowIfNull(value);
+            ObjectDisposedException.ThrowIf(_isExpired, this);
+            
             _value = value;
         }
     }
@@ -117,30 +116,30 @@ public class DataLease<TKey, TValue> : IAsyncDisposable where TKey : notnull
     public async ValueTask DisposeAsync()
     {
         _isExpired = true;
+        GC.SuppressFinalize(this);
         
         if (!_isMarkedForDeletion)
         {
             _store.Update(_key, _value);
             _waitHandle.Release();
+
+            return;
         }
-        else
+
+        if (await _store.DeleteAsync(_key))
         {
-            if (await _store.DeleteAsync(_key))
-            {
-                _waitHandle.Dispose();
-                return;
-            }
-
-            if (_value is IAsyncDisposable asyncDisposable)
-            {
-                await asyncDisposable.DisposeAsync();
-            }
-            else if (_value is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-
             _waitHandle.Dispose();
+            return;
+        }
+
+        _waitHandle.Dispose();
+        if (_value is IAsyncDisposable asyncDisposable)
+        {
+            await asyncDisposable.DisposeAsync();
+        }
+        else if (_value is IDisposable disposable)
+        {
+            disposable.Dispose();
         }
     }
 }

@@ -18,6 +18,7 @@ namespace RemoraHTTPInteractions.Services;
 /// </summary>
 public class WebhookInteractionHelper
 {
+    private readonly TimeProvider _time;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly IResponderDispatchService _dispatch;
     private readonly InMemoryDataStore<string, InteractionWebhookResponse> _data;
@@ -31,12 +32,14 @@ public class WebhookInteractionHelper
     public WebhookInteractionHelper
     (
         IOptionsMonitor<JsonSerializerOptions> jsonOptions,
-        IResponderDispatchService dispatch
+        IResponderDispatchService dispatch,
+        TimeProvider? time = default
     )
     {
-        _jsonOptions = jsonOptions.Get("Discord");
         _dispatch = dispatch;
+        _jsonOptions = jsonOptions.Get("Discord");
         _data = InMemoryDataStore<string, InteractionWebhookResponse>.Instance;
+        _time = time ?? TimeProvider.System;
     }
 
     /// <summary>
@@ -50,19 +53,39 @@ public class WebhookInteractionHelper
     {
         var interaction = JsonSerializer.Deserialize<IInteractionCreate>(json, _jsonOptions)!;
 
-        return HandleInteractionAsync(interaction);
+        return HandleInteractionCoreAsync(interaction);
     }
     
-    internal async Task<Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>> HandleInteractionAsync(IInteractionCreate interaction)
+    [ExcludeFromCodeCoverage]
+    public Task<Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>> HandleInteractionAsync(IInteractionCreate interaction)
+    {
+        return HandleInteractionCoreAsync(interaction);
+    }
+
+    private async Task<Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>> HandleInteractionCoreAsync(IInteractionCreate interaction)
     {
         // This method assumes a valid interaction has been received.
+        // Sanity check: Ensure three seconds have not passed since the interaction was received.
+        if (interaction.ID.Timestamp + TimeSpan.FromSeconds(3) < _time.GetUtcNow())
+        {
+            return Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>.FromError(new InteractionTimeoutError());
+        }
 
-        var data = new InteractionWebhookResponse(new());
+        InteractionWebhookResponse data = new(new TaskCompletionSource<InteractionWebhookResponseData>());
         _data.TryAddValue(interaction.Token, data);
         
         await _dispatch.DispatchAsync(new Payload<IInteractionCreate>(interaction));
 
-        var response = await data.ResponseTCS.Task;
+        Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(3));
+        Task completedTask = await Task.WhenAny(data.ResponseTCS.Task, timeoutTask);
+        
+        if (completedTask == timeoutTask)
+        {
+            await _data.DeleteAsync(interaction.Token);
+            return Result<(string, Optional<IReadOnlyDictionary<string, Stream>>)>.FromError(new InteractionTimeoutError());
+        }
+        
+        InteractionWebhookResponseData response = data.ResponseTCS.Task.Result;
 
         if (!response.Attachments.IsDefined(out var attachments))
         {
@@ -113,7 +136,10 @@ public class WebhookInteractionHelper
         .ToList();
         
         return response with { Data = new(((InteractionMessageCallbackData)data)! with { Attachments = attachments }) };
-
     }
-
 }
+
+file record InteractionTimeoutError
+(
+    string Message = "The response window for the initial interaction callback has expired."
+) : IResultError;
