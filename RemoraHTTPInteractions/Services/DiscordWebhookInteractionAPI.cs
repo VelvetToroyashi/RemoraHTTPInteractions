@@ -114,7 +114,7 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
     {
         // Hack! Use the presence of a context to determine that this is the initial response,
         // and thus, can be returned as a response, instead of having to make an API call!
-        if (_contextInjector is not { Context: InteractionContext { HasRespondedToInteraction: false } })
+        if (_contextInjector is not { Context: InteractionContext { HasRespondedToInteraction: false } context })
         {
             return await _underlying.CreateFollowupMessageAsync(applicationID, token, content, isTTS, embeds, allowedMentions, components, attachments, flags, ct);
         }
@@ -157,7 +157,11 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         //
         // Though, all of this only even matters if this method is called instead of CreateInteractionResponse, which
         // is technically undocumented-but-supported behavior. 💀
-        return await _underlying.GetOriginalInteractionResponseAsync(applicationID, token, ct);
+        var messageResult = await _underlying.GetOriginalInteractionResponseAsync(applicationID, token, ct);
+
+        context.HasRespondedToInteraction = messageResult.IsSuccess;
+        
+        return messageResult;
     }
 
     /// <inheritdoc />
