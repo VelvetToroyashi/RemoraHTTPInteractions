@@ -87,9 +87,10 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         Optional<IAllowedMentions?> allowedMentions = default,
         Optional<IReadOnlyList<IMessageComponent>?> components = default,
         Optional<IReadOnlyList<OneOf<FileData, IPartialAttachment>>?> attachments = default,
+        Optional<MessageFlags> flags = default,
         CancellationToken ct = default
     )
-        => _underlying.EditOriginalInteractionResponseAsync(applicationID, token, content, embeds, allowedMentions, components, attachments, ct);
+        => _underlying.EditOriginalInteractionResponseAsync(applicationID, token, content, embeds, allowedMentions, components, attachments, flags, ct);
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
@@ -181,8 +182,9 @@ public class DiscordWebhookInteractionAPI : IDiscordRestInteractionAPI
         Optional<IAllowedMentions?> allowedMentions = default,
         Optional<IReadOnlyList<IMessageComponent>?> components = default,
         Optional<IReadOnlyList<OneOf<FileData, IPartialAttachment>>?> attachments = default,
+        Optional<MessageFlags?> flags = default,
         CancellationToken ct = default
-    ) => _underlying.EditFollowupMessageAsync(applicationID, token, messageID, content, embeds, allowedMentions, components, attachments, ct);
+    ) => _underlying.EditFollowupMessageAsync(applicationID, token, messageID, content, embeds, allowedMentions, components, attachments, flags, ct);
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
